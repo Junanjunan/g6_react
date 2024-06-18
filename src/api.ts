@@ -8,8 +8,8 @@ import {
 } from "./types";
 
 
-// export const serverURL = "http://127.0.0.1:8000";
-export const serverURL = "https://g6.demo.sir.kr";
+export const serverURL = "http://127.0.0.1:8000";
+// export const serverURL = "https://g6.demo.sir.kr";
 
 const axiosInstance = axios.create({
   baseURL: `${serverURL}/api/v1`
@@ -115,6 +115,36 @@ export const updateWrite = async ({access_token, bo_table, wr_id, variables}: IR
   return axiosInstance.put(
     `/boards/${bo_table}/writes/${wr_id}`,
     variables,
+    headers,
+  )
+  .then(res => res.data)
+  .catch(error => {
+    throw error;
+  });
+}
+
+
+export const uploadFiles = async ({ queryKey }: QueryFunctionContext) =>{
+  const [_, access_token, bo_table, wr_id, files] = queryKey;
+  const formData = new FormData();
+  const headers = {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      "Authorization": `Bearer ${access_token}`
+    }
+  }
+
+  if (!Array.isArray(files)) {
+    throw new Error("files must be an array");
+  }
+
+  for (let i = 0; i < files.length; i++) {
+    formData.append(`file${i+1}`, files[i]);
+  };
+
+  return axiosInstance.post(
+    `/boards/${bo_table}/writes/${wr_id}/files`,
+    formData,
     headers,
   )
   .then(res => res.data)

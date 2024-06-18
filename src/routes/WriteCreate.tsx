@@ -4,6 +4,7 @@ import { IRequestWriteCreate } from "../types";
 import { createWrite } from "../api";
 import WriteForm from "../components/Write/WriteForm";
 import { useGetBoTableParams } from "../lib/useQuery/hooks";
+import { useForm } from "react-hook-form";
 
 
 export default function WirteCreate() {
@@ -11,7 +12,8 @@ export default function WirteCreate() {
   const bo_table = useGetBoTableParams();
   const mutation = useMutation({
     mutationFn: createWrite,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log(data);
       alert("생성 되었습니다.");
       navigate(`/`);
     },

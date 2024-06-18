@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { 
   Container, FormControl, FormLabel, Input, InputGroup,
   InputLeftAddon, Text, Textarea, VStack, Button
@@ -9,9 +9,20 @@ import FileUpload from "../../lib/files";
 import { useRequireLogin } from "../../lib/hooks";
 
 
+interface IFiles {
+  file1: File | null;
+  file2: File | null;
+}
+
+
 export default function WriteForm({mutation, onSubmit, bo_table, wr_id, writeData}: IWriteFormVariables) {
   const access_token = useVerifiedToken().accessToken;
   useRequireLogin(access_token);
+  const methods = useForm<IFiles>();
+  const onSubmit2 = (data: IFiles) => {
+    console.log(data);
+    alert(data);
+  }
   const { register, handleSubmit } = useForm<IRequestWriteForm>({
     defaultValues: {
       access_token: access_token ? access_token : "",
@@ -28,7 +39,10 @@ export default function WriteForm({mutation, onSubmit, bo_table, wr_id, writeDat
 
   return (
     <Container mt={10} px={{ base: 10, lg: 40 }}>
-      <VStack as="form" onSubmit={handleSubmit(onSubmit)}>
+      <VStack as="form" onSubmit={() => {
+        handleSubmit(onSubmit)();
+        methods.handleSubmit(onSubmit2)();
+      }}>
         <Input {...register("access_token")} required type="text" hidden/>
         <Input {...register("bo_table")} required type="text" hidden/>
         <Input {...register("wr_id")} type="text" hidden/>
@@ -64,8 +78,10 @@ export default function WriteForm({mutation, onSubmit, bo_table, wr_id, writeDat
             />
           </InputGroup>
         </FormControl>
-        <FileUpload />
-        <FileUpload />
+        <FormProvider {...methods}>
+          <FileUpload name="file1" />
+          <FileUpload name="file2" />
+        </FormProvider>
         {mutation.isError? <Text color={"red.500"}>에러 발생</Text> : null}
         <Button
           type="submit"

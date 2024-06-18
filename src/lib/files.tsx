@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useFormContext, useController } from 'react-hook-form';
 import { Button, FormControl, Input, InputGroup, Text } from "@chakra-ui/react";
 import { serverURL } from "../api";
 
@@ -14,13 +15,21 @@ export function get_img_url (bf_file: string) {
 }
 
 
-export default function FileUpload () {
+export default function FileUpload ({name} : {name: string}) {
+  const { control, setValue } = useFormContext();
+  const { field } = useController({
+    name,
+    control,
+    defaultValue: null
+  });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
-      setSelectedFile(event.target.files[0]);
+      const file = event.target.files[0]
+      setSelectedFile(file);
+      setValue(name, file);
     }
   };
 
